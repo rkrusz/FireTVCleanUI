@@ -25,7 +25,7 @@ public final class FavoritesStore {
         this.preferences = preferences;
     }
 
-    /** Returns an immutable sanitized ordered list, empty for missing or corrupt data. */
+    /** Returns immutable sanitized pins; missing/malformed data is empty, valid array entries survive. */
     public List<String> load() {
         final String stored;
         try {
