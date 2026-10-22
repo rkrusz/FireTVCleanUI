@@ -7,9 +7,9 @@ import org.junit.Test;
 
 public final class DailyWallpaperTest {
     @Test
-    public void sameEpochDaySelectsSameImage() {
-        assertEquals(DailyWallpaper.indexForDay(100, 8), DailyWallpaper.indexForDay(100, 8));
+    public void epochDayMapsToExpectedIndex() {
         assertEquals(4, DailyWallpaper.indexForDay(100, 8));
+        assertEquals(5, DailyWallpaper.indexForDay(101, 8));
     }
 
     @Test
@@ -45,8 +45,8 @@ public final class DailyWallpaperTest {
 
     @Test
     public void extremeEpochDaysAndSingleImageAreSafe() {
-        assertEquals(Math.floorMod(Long.MIN_VALUE, 8), DailyWallpaper.indexForDay(Long.MIN_VALUE, 8));
-        assertEquals(Math.floorMod(Long.MAX_VALUE, 8), DailyWallpaper.indexForDay(Long.MAX_VALUE, 8));
+        assertEquals(0, DailyWallpaper.indexForDay(Long.MIN_VALUE, 8));
+        assertEquals(7, DailyWallpaper.indexForDay(Long.MAX_VALUE, 8));
         assertEquals(0, DailyWallpaper.selectedIndex(Long.MAX_VALUE, 1, -1));
     }
 }

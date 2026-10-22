@@ -7,7 +7,8 @@ public final class DailyWallpaper {
 
     /** Returns the daily index, or -1 if no wallpapers are available. */
     public static int indexForDay(long epochDay, int count) {
-        return count > 0 ? Math.floorMod(epochDay, count) : -1;
+        // Android API 28 lacks floorMod(long, int); floorMod(long, long) is API 24.
+        return count > 0 ? (int) Math.floorMod(epochDay, (long) count) : -1;
     }
 
     /** Returns a valid frozen index, otherwise the daily index; -1 means none available. */
