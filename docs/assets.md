@@ -7,3 +7,5 @@ Scenes: mountain lake, coast, autumn forest, desert, starry alpine peaks, rollin
 These are synthetic images, not photographs of real locations. They may have small AI-generated visual imperfections. The entire app works offline and makes no image-service requests.
 
 `app_icon.png` and `tv_banner.png` are derived from the generated mountain scene, with an added title for the TV launcher. They are not CleanFrame branding.
+
+Each scene also has a 480×270 `thumb_*.webp` copy for the wallpaper picker. These are decoded instead of eight full-resolution scenes in the picker to reduce RAM use on a TV. The chosen background still uses its 1920×1080 asset.
