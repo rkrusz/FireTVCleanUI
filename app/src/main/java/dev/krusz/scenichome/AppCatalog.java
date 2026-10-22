@@ -1,8 +1,6 @@
 package dev.krusz.scenichome;
 
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -23,13 +21,11 @@ public final class AppCatalog {
         public final String packageName;
         public final String label;
         public final Drawable icon;
-        private final ComponentName component;
 
-        private Entry(String packageName, String label, Drawable icon, ComponentName component) {
+        private Entry(String packageName, String label, Drawable icon) {
             this.packageName = packageName;
             this.label = label;
             this.icon = icon;
-            this.component = component;
         }
     }
 
@@ -57,24 +53,38 @@ public final class AppCatalog {
 
     /** Rechecks availability at launch time; returns false and shows a brief message on failure. */
     public boolean launch(Entry entry) {
-        if (entry == null) return unavailable();
-        // A saved picker entry may no longer be installed, enabled or exported.
-        for (Entry current : listInstalled()) {
-            if (current.packageName.equals(entry.packageName)) {
-                return start(current.component);
-            }
-        }
-        return unavailable();
+        return launch(entry == null ? null : entry.packageName);
     }
 
     /** Useful for favorites restored from persistent package names. */
     public boolean launch(String packageName) {
-        if (packageName != null) {
-            for (Entry entry : listInstalled()) {
-                if (entry.packageName.equals(packageName)) return start(entry.component);
+        if (packageName == null || packageName.equals(context.getPackageName())) return unavailable();
+        try {
+            // PackageManager returns explicit launcher activities, preferring the TV entry point.
+            Intent intent = packages.getLeanbackLaunchIntentForPackage(packageName);
+            if (!isAvailableLauncher(intent, packageName)) {
+                intent = packages.getLaunchIntentForPackage(packageName);
             }
+            if (!isAvailableLauncher(intent, packageName)) return unavailable();
+            // Keep the launched app out of Scenic Home's task even when context is an Activity.
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+            return true;
+        } catch (ActivityNotFoundException | SecurityException exception) {
+            return unavailable();
         }
-        return unavailable();
+    }
+
+    private boolean isAvailableLauncher(Intent intent, String packageName) {
+        if (intent == null || intent.getComponent() == null
+                || !packageName.equals(intent.getComponent().getPackageName())) return false;
+        try {
+            ActivityInfo activity = packages.getActivityInfo(intent.getComponent(), 0);
+            return activity.enabled && activity.exported && activity.applicationInfo != null
+                    && activity.applicationInfo.enabled;
+        } catch (PackageManager.NameNotFoundException | SecurityException exception) {
+            return false;
+        }
     }
 
     private void collect(String category, Map<String, Entry> entries) {
@@ -91,19 +101,7 @@ public final class AppCatalog {
             String label = title == null || title.length() == 0
                     ? activity.packageName : title.toString();
             entries.put(activity.packageName, new Entry(activity.packageName, label,
-                    resolved.loadIcon(packages),
-                    new ComponentName(activity.packageName, activity.name)));
-        }
-    }
-
-    private boolean start(ComponentName component) {
-        Intent intent = new Intent(Intent.ACTION_MAIN).setComponent(component);
-        if (!(context instanceof Activity)) intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        try {
-            context.startActivity(intent);
-            return true;
-        } catch (ActivityNotFoundException | SecurityException exception) {
-            return unavailable();
+                    resolved.loadIcon(packages)));
         }
     }
 
