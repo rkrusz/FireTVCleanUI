@@ -32,6 +32,9 @@ public final class ScenicHomeActivity extends Activity {
     private static final int[] SCENES = {R.drawable.scenic_coast, R.drawable.scenic_desert,
             R.drawable.scenic_falls, R.drawable.scenic_forest, R.drawable.scenic_hills,
             R.drawable.scenic_mountain, R.drawable.scenic_stars, R.drawable.scenic_winter};
+    private static final int[] THUMBS = {R.drawable.thumb_coast, R.drawable.thumb_desert,
+            R.drawable.thumb_falls, R.drawable.thumb_forest, R.drawable.thumb_hills,
+            R.drawable.thumb_mountain, R.drawable.thumb_stars, R.drawable.thumb_winter};
     private static final String[] NAMES = {"Coast", "Desert", "Falls", "Forest", "Hills", "Mountain", "Stars", "Winter"};
     private static final int HOME = 0, MANAGE = 1, WALLPAPERS = 2;
     private final Handler handler = new Handler(Looper.getMainLooper());
@@ -68,9 +71,6 @@ public final class ScenicHomeActivity extends Activity {
             focused = state.getString("focus", "manage");
             homeFocus = state.getString("homeFocus", "manage");
         }
-        pins = store.load();
-        installed = catalog.listInstalled();
-        render();
     }
     @Override protected void onResume() {
         super.onResume();
@@ -350,22 +350,22 @@ public final class ScenicHomeActivity extends Activity {
                 tile.setGravity(Gravity.CENTER);
                 if (choice >= 0) {
                     ImageView preview = new ImageView(this);
-                    preview.setImageResource(SCENES[choice]);
+                    preview.setImageResource(THUMBS[choice]);
                     preview.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                    tile.addView(preview, new LinearLayout.LayoutParams(-1, dp(78)));
+                    tile.addView(preview, new LinearLayout.LayoutParams(-1, dp(70)));
                 }
                 TextView title = label((choice < 0 ? "Daily rotation" : NAMES[choice])
                         + (choice == selected ? "  ✓" : ""), 19);
                 title.setGravity(Gravity.CENTER);
-                tile.addView(title, new LinearLayout.LayoutParams(-1, dp(45)));
+                tile.addView(title, new LinearLayout.LayoutParams(-1, dp(38)));
                 focusable(tile, choice < 0 ? "wall:daily" : "wall:" + choice, () -> {
                     prefs.edit().putInt("frozen_wallpaper", choice).apply();
                     screen = HOME;
                     focused = homeFocus;
                     render();
                 });
-                LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(0, dp(131), 1);
-                p.setMargins(dp(5), dp(5), dp(5), dp(5));
+                LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(0, dp(116), 1);
+                p.setMargins(dp(4), dp(4), dp(4), dp(4));
                 row.addView(tile, p);
             }
         }
